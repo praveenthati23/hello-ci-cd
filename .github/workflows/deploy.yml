@@ -114,6 +114,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             pkill -f 'hello-ci-cd-1.0-SNAPSHOT.jar' || true
-            nohup java -jar /home/ubuntu/hello-ci-cd-1.0-SNAPSHOT.jar > /home/ubuntu/app.log 2>&1 &
+            nohup java -jar $HOME/hello-ci-cd-1.0-SNAPSHOT.jar > $HOME/app.log 2>&1 &
             sleep 2
-            tail -n 10 /home/ubuntu/app.log
+            tail -n 10 $HOME/app.log
