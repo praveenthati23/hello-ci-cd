@@ -1,255 +1,133 @@
-All collection items must start at the same column (10:5)
-   8 | jobs:
-   9 |   build-analyze-deploy:
->  10 |     name: Build, Analyze, Deploy
-      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->  11 |     runs-on: ubuntu-latest
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  12 |     permissions:
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  13 |       contents: read
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  14 |       pull-requests: write
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  15 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  16 |     steps:
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  17 |       - name: Checkout Code
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  18 |         uses: actions/checkout@v4
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  19 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  20 |       - name: Set up Java 21
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  21 |         uses: actions/setup-java@v4
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  22 |         with:
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  23 |           distribution: 'temurin'
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  24 |           java-version: '21'
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  25 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  26 |       - name: Cache Maven packages
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  27 |         uses: actions/cache@v4
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  28 |         with:
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  29 |           path: ~/.m2/repository
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  30 |           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  31 |           restore-keys: |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  32 |             ${{ runner.os }}-maven
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  33 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  34 |       - name: Run Static Analysis and Unit Tests
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  35 |         run: mvn --batch-mode clean verify site
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  36 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  37 |       - name: Upload PMD report
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  38 |         if: always()
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  39 |         uses: actions/upload-artifact@v4
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  40 |         with:
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  41 |           name: pmd-report
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  42 |           path: target/site/pmd.html
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  43 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  44 |       - name: Upload SpotBugs report
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  45 |         if: always()
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  46 |         uses: actions/upload-artifact@v4
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  47 |         with:
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  48 |           name: spotbugs-report
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  49 |           path: target/spotbugs.html
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  50 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  51 |       - name: Upload Checkstyle report
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  52 |         if: always()
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  53 |         uses: actions/upload-artifact@v4
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  54 |         with:
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  55 |           name: checkstyle-report
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  56 |           path: target/site/checkstyle.html
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  57 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  58 |       - name: Post Code Analysis Summary
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  59 |         if: github.event_name == 'pull_request'
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  60 |         uses: actions/github-script@v7
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  61 |         with:
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  62 |           github-token: ${{ secrets.GITHUB_TOKEN }}
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  63 |           script: |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  64 |             const fs = require('fs');
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  65 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  66 |             function readCount(file, pattern) {
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  67 |               try {
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  68 |                 const content = fs.readFileSync(file, 'utf8');
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  69 |                 return (content.match(new RegExp(pattern, 'g')) || []).length;
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  70 |               } catch (e) {
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  71 |                 return 0;
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  72 |               }
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  73 |             }
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  74 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  75 |             const pmd = readCount('target/pmd.xml', '<violation');
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  76 |             const spotbugs = readCount('target/spotbugsXml.xml', 'BugInstance');
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  77 |             const checkstyle = readCount('target/checkstyle-result.xml', '<error');
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  78 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  79 |             let body = `## 🧪 Code Analysis Report\n\n`;
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  80 |             if (pmd > 0) body += `🔸 **PMD**: ${pmd} violations\n`;
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  81 |             if (spotbugs > 0) body += `🔸 **SpotBugs**: ${spotbugs} bugs\n`;
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  82 |             if (checkstyle > 0) body += `🔸 **Checkstyle**: ${checkstyle} issues\n`;
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  83 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  84 |             if (pmd === 0 && spotbugs === 0 && checkstyle === 0) {
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  85 |               body += `✅ No issues found!\n`;
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  86 |             }
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  87 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  88 |             body += `\n📥 [View full reports](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  89 |             body += `\n\n<sub>🤖 Generated by GitHub Actions</sub>`;
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  90 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  91 |             await github.rest.issues.createComment({
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  92 |               owner: context.repo.owner,
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  93 |               repo: context.repo.repo,
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  94 |               issue_number: context.issue.number,
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  95 |               body
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  96 |             });
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  97 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  98 |       - name: Deploy to EC2
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
->  99 |         if: success()
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 100 |         uses: appleboy/scp-action@v0.1.7
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 101 |         with:
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 102 |           host: ${{ secrets.HOST }}
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 103 |           username: ${{ secrets.USER }}
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 104 |           key: ${{ secrets.SSH_KEY }}
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 105 |           source: "target/hello-ci-cd-1.0-SNAPSHOT.jar"
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 106 |           target: "/home/ubuntu/"
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 107 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 108 |           - name: Run App on EC2
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 109 |       uses: appleboy/ssh-action@v1.0.3
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 110 |       with:
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 111 |         host: ${{ secrets.SERVER_HOST }}
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 112 |         username: ${{ secrets.SERVER_USER }}
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 113 |         key: ${{ secrets.SSH_PRIVATE_KEY }}
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 114 |         script: |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 115 |           echo "🔁 Stopping any existing process..."
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 116 |           pkill -f 'hello-ci-cd-1.0-SNAPSHOT.jar' || true
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 117 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 118 |           echo "🚀 Starting the new JAR file in background..."
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 119 |           nohup java -jar $HOME/hello-ci-cd-1.0-SNAPSHOT.jar > $HOME/app.log 2>&1 &
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 120 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 121 |           echo "⏳ Waiting 3 seconds..."
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 122 |           sleep 3
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 123 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 124 |           echo "📄 Showing last 10 lines of log..."
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 125 |           tail -n 10 $HOME/app.log
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 126 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 127 |           echo "🔍 Checking if process is running..."
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 128 |           if pgrep -f 'hello-ci-cd-1.0-SNAPSHOT.jar'; then
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 129 |             echo "✅ App is running successfully"
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 130 |           else
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 131 |             echo "❌ App failed to start"
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 132 |             exit 1
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 133 |           fi
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 134 |
-      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 135 |
-      | ^
+name: Java CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-analyze-deploy:
+    name: Build, Analyze, Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven
+
+      - name: Run Static Analysis and Unit Tests
+        run: mvn --batch-mode clean verify site
+
+      - name: Upload PMD report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pmd-report
+          path: target/site/pmd.html
+
+      - name: Upload SpotBugs report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotbugs-report
+          path: target/spotbugs.html
+
+      - name: Upload Checkstyle report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkstyle-report
+          path: target/site/checkstyle.html
+
+      - name: Post Code Analysis Summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            function readCount(file, pattern) {
+              try {
+                const content = fs.readFileSync(file, 'utf8');
+                return (content.match(new RegExp(pattern, 'g')) || []).length;
+              } catch (e) {
+                return 0;
+              }
+            }
+
+            const pmd = readCount('target/pmd.xml', '<violation');
+            const spotbugs = readCount('target/spotbugsXml.xml', 'BugInstance');
+            const checkstyle = readCount('target/checkstyle-result.xml', '<error');
+
+            let body = `## 🧪 Code Analysis Report\n\n`;
+            if (pmd > 0) body += `🔸 **PMD**: ${pmd} violations\n`;
+            if (spotbugs > 0) body += `🔸 **SpotBugs**: ${spotbugs} bugs\n`;
+            if (checkstyle > 0) body += `🔸 **Checkstyle**: ${checkstyle} issues\n`;
+
+            if (pmd === 0 && spotbugs === 0 && checkstyle === 0) {
+              body += `✅ No issues found!\n`;
+            }
+
+            body += `\n📥 [View full reports](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            body += `\n\n<sub>🤖 Generated by GitHub Actions</sub>`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
+      - name: Deploy to EC2
+        if: success()
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "target/hello-ci-cd-1.0-SNAPSHOT.jar"
+          target: "/home/ubuntu/"
+
+      - name: Run App on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "🔁 Stopping any existing process..."
+            pkill -f 'hello-ci-cd-1.0-SNAPSHOT.jar' || true
+
+            echo "🚀 Starting the new JAR file in background..."
+            nohup java -jar $HOME/hello-ci-cd-1.0-SNAPSHOT.jar > $HOME/app.log 2>&1 &
+
+            echo "⏳ Waiting 3 seconds..."
+            sleep 3
+
+            echo "📄 Showing last 10 lines of log..."
+            tail -n 10 $HOME/app.log
+
+            echo "🔍 Checking if process is running..."
+            if pgrep -f 'hello-ci-cd-1.0-SNAPSHOT.jar'; then
+              echo "✅ App is running successfully"
+            else
+              echo "❌ App failed to start"
+              exit 1
+            fi
