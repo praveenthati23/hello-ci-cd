@@ -117,6 +117,7 @@ jobs:
 
             echo "🚀 Starting the new JAR file in background..."
             nohup java -jar $HOME/hello-ci-cd-1.0-SNAPSHOT.jar > $HOME/app.log 2>&1 &
+            disown
 
             echo "⏳ Waiting 3 seconds..."
             sleep 3
