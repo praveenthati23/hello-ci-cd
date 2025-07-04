@@ -93,7 +93,7 @@
           <threshold>Low</threshold>
           <xmlOutput>true</xmlOutput>
           <htmlOutput>true</htmlOutput>
-          <htmlOutputDirectory>target/site</htmlOutputDirectory>
+          <outputDirectory>${project.build.directory}/site</outputDirectory>
         </configuration>
       </plugin>
 
