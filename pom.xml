@@ -71,7 +71,7 @@
         </executions>
         <configuration>
           <targetJdk>21</targetJdk>
-          <failOnViolation>false</failOnViolation>
+          <failOnViolation>true</failOnViolation>
         </configuration>
       </plugin>
 
@@ -111,7 +111,7 @@
         </executions>
         <configuration>
           <configLocation>google_checks.xml</configLocation>
-          <failOnViolation>false</failOnViolation>
+          <failOnViolation>true</failOnViolation>
         </configuration>
       </plugin>
     </plugins>
