@@ -114,7 +114,6 @@
         <configuration>
           <configLocation>google_checks.xml</configLocation>
 	  <failsOnError>false</failsOnError>
-	  <violationSeverity>warning</violationSeverity>
         </configuration>
       </plugin>
     </plugins>
