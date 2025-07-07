@@ -71,7 +71,7 @@
         </executions>
         <configuration>
           <targetJdk>21</targetJdk>
-          <failOnViolation>false</failOnViolation>
+          <failOnViolation>true</failOnViolation>
         </configuration>
       </plugin>
 
@@ -88,7 +88,7 @@
           </execution>
         </executions>
         <configuration>
-          <failOnError>false</failOnError>
+          <failOnError>true</failOnError>
           <effort>Max</effort>
           <threshold>Low</threshold>
           <xmlOutput>true</xmlOutput>
@@ -105,13 +105,13 @@
           <execution>
             <phase>verify</phase>
             <goals>
-              <goal>checkstyle</goal>
+              <goal>check</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
           <configLocation>google_checks.xml</configLocation>
-          <failOnViolation>true</failOnViolation>
+          <failsOnError>true</failsOnError>
         </configuration>
       </plugin>
     </plugins>
