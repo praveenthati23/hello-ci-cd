@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<BugCollection version="4.8.6" sequence="0" timestamp="1751874411236" analysisTimestamp="1751874411236" release="">
+  <Project projectName="hello-ci-cd">
+    <Jar>C:\Users\Lenovo\Downloads\cicd-practice\hello-ci-cd\target\classes</Jar>
+    <AuxClasspathEntry>C:\Users\Lenovo\.m2\repository\com\github\spotbugs\spotbugs-annotations\4.8.6\spotbugs-annotations-4.8.6.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Lenovo\.m2\repository\com\google\code\findbugs\jsr305\3.0.2\jsr305-3.0.2.jar</AuxClasspathEntry>
+  </Project>
+  <BugInstance type="NP_ALWAYS_NULL" priority="1" rank="5" abbrev="NP" category="CORRECTNESS" instanceHash="68da43e309945b67a202dd8b4fcb854c" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="476">
+    <ShortMessage>Null pointer dereference</ShortMessage>
+    <LongMessage>Null pointer dereference of risky in com.example.App.main(String[])</LongMessage>
+    <Class classname="com.example.App" primary="true">
+      <SourceLine classname="com.example.App" start="3" end="18" sourcefile="App.java" sourcepath="com/example/App.java">
+        <Message>At App.java:[lines 3-18]</Message>
+      </SourceLine>
+      <Message>In class com.example.App</Message>
+    </Class>
+    <Method classname="com.example.App" name="main" signature="([Ljava/lang/String;)V" isStatic="true" primary="true">
+      <SourceLine classname="com.example.App" start="10" end="18" startBytecode="0" endBytecode="132" sourcefile="App.java" sourcepath="com/example/App.java"/>
+      <Message>In method com.example.App.main(String[])</Message>
+    </Method>
+    <LocalVariable name="risky" register="1" pc="13" role="LOCAL_VARIABLE_VALUE_OF">
+      <Message>Value loaded from risky</Message>
+    </LocalVariable>
+    <SourceLine classname="com.example.App" primary="true" start="14" end="14" startBytecode="14" endBytecode="14" sourcefile="App.java" sourcepath="com/example/App.java" role="SOURCE_LINE_DEREF">
+      <Message>Dereferenced at App.java:[line 14]</Message>
+    </SourceLine>
+  </BugInstance>
+  <BugInstance type="NP_LOAD_OF_KNOWN_NULL_VALUE" priority="3" rank="19" abbrev="NP" category="STYLE" instanceHash="18342ac97569a8917fdc261315cb0248" instanceOccurrenceNum="0" instanceOccurrenceMax="0" cweid="476">
+    <ShortMessage>Load of known null value</ShortMessage>
+    <LongMessage>Load of known null value in com.example.App.main(String[])</LongMessage>
+    <Class classname="com.example.App" primary="true">
+      <SourceLine classname="com.example.App" start="3" end="18" sourcefile="App.java" sourcepath="com/example/App.java">
+        <Message>At App.java:[lines 3-18]</Message>
+      </SourceLine>
+      <Message>In class com.example.App</Message>
+    </Class>
+    <Method classname="com.example.App" name="main" signature="([Ljava/lang/String;)V" isStatic="true" primary="true">
+      <SourceLine classname="com.example.App" start="10" end="18" startBytecode="0" endBytecode="20" sourcefile="App.java" sourcepath="com/example/App.java"/>
+      <Message>In method com.example.App.main(String[])</Message>
+    </Method>
+    <LocalVariable name="risky" register="1" pc="10" role="LOCAL_VARIABLE_VALUE_OF">
+      <Message>Value loaded from risky</Message>
+    </LocalVariable>
+    <SourceLine classname="com.example.App" primary="true" start="14" end="14" startBytecode="13" endBytecode="13" sourcefile="App.java" sourcepath="com/example/App.java">
+      <Message>At App.java:[line 14]</Message>
+    </SourceLine>
+  </BugInstance>
+  <BugInstance type="URF_UNREAD_FIELD" priority="3" rank="20" abbrev="UrF" category="PERFORMANCE" instanceHash="f1040ec92dc2e3deceac0f93422292fa" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
+    <ShortMessage>Unread field</ShortMessage>
+    <LongMessage>Unread field: com.example.App.unusedField</LongMessage>
+    <Class classname="com.example.App" primary="true">
+      <SourceLine classname="com.example.App" start="3" end="18" sourcefile="App.java" sourcepath="com/example/App.java">
+        <Message>At App.java:[lines 3-18]</Message>
+      </SourceLine>
+      <Message>In class com.example.App</Message>
+    </Class>
+    <Field classname="com.example.App" name="unusedField" signature="Ljava/lang/String;" isStatic="true" primary="true">
+      <SourceLine classname="com.example.App" sourcefile="App.java" sourcepath="com/example/App.java">
+        <Message>In App.java</Message>
+      </SourceLine>
+      <Message>Field com.example.App.unusedField</Message>
+    </Field>
+    <SourceLine classname="com.example.App" primary="true" start="5" end="5" startBytecode="2" endBytecode="2" sourcefile="App.java" sourcepath="com/example/App.java">
+      <Message>At App.java:[line 5]</Message>
+    </SourceLine>
+  </BugInstance>
+  <BugCategory category="CORRECTNESS">
+    <Description>Correctness</Description>
+  </BugCategory>
+  <BugCategory category="PERFORMANCE">
+    <Description>Performance</Description>
+  </BugCategory>
+  <BugCategory category="STYLE">
+    <Description>Dodgy code</Description>
+  </BugCategory>
+  <BugPattern type="NP_ALWAYS_NULL" abbrev="NP" category="CORRECTNESS">
+    <ShortDescription>Null pointer dereference</ShortDescription>
+    <Details><![CDATA[
+
+<p> A null pointer is dereferenced here.&nbsp; This will lead to a
+<code>NullPointerException</code> when the code is executed.</p>
+
+    ]]></Details>
+  </BugPattern>
+  <BugPattern type="NP_LOAD_OF_KNOWN_NULL_VALUE" abbrev="NP" category="STYLE">
+    <ShortDescription>Load of known null value</ShortDescription>
+    <Details><![CDATA[
+
+  <p> The variable referenced at this point is known to be null due to an earlier
+   check against null. Although this is valid, it might be a mistake (perhaps you
+intended to refer to a different variable, or perhaps the earlier check to see if the
+variable is null should have been a check to see if it was non-null).
+</p>
+
+    ]]></Details>
+  </BugPattern>
+  <BugPattern type="URF_UNREAD_FIELD" abbrev="UrF" category="PERFORMANCE">
+    <ShortDescription>Unread field</ShortDescription>
+    <Details><![CDATA[
+
+  <p> This field is never read.&nbsp; Consider removing it from the class.</p>
+
+    ]]></Details>
+  </BugPattern>
+  <BugCode abbrev="NP" cweid="476">
+    <Description>Null pointer dereference</Description>
+  </BugCode>
+  <BugCode abbrev="UrF">
+    <Description>Unread field</Description>
+  </BugCode>
+  <Errors errors="0" missingClasses="0"></Errors>
+  <FindBugsSummary timestamp="Mon, 7 Jul 2025 13:16:51 +0530" total_classes="0" referenced_classes="0" total_bugs="3" total_size="0" num_packages="1" java_version="21.0.7" vm_version="21.0.7+6-LTS" cpu_seconds="12.84" clock_seconds="3.65" peak_mbytes="157.02" alloc_mbytes="512.00" gc_seconds="0.05" priority_3="2" priority_1="1">
+    <FileStats path="com/example/App.java" bugCount="3" size="0" bugHash="b27dd0e0c49f4ac4e7da571da46fd6ea"/>
+    <FindBugsProfile></FindBugsProfile>
+  </FindBugsSummary>
+  <ClassFeatures></ClassFeatures>
+  <History></History>
+</BugCollection>
