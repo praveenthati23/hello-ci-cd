@@ -11,7 +11,7 @@ public class App {
         System.out.println(name.length());  // SpotBugs should flag this
 
         // ❌ Checkstyle: Multiple statements per line and missing JavaDoc
-        int a = 5; int b = 10; System.out.println("Sum = " + (a + b)); // Checkstyle violation
+        int a = 5; int b = 20; System.out.println("Sum = " + (a + b)); // Checkstyle violation
     }
 }
 
